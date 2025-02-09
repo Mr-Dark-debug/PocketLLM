@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 
 class ChatInput extends StatefulWidget {
   final Function(String) onSend;
-  final Function(PlatformFile)? onFileSelected;
   final bool isLoading;
 
   const ChatInput({
     super.key,
     required this.onSend,
-    this.onFileSelected,
     required this.isLoading,
   });
 
@@ -35,21 +32,6 @@ class _ChatInputState extends State<ChatInput> {
     }
   }
 
-  Future<void> _handleAttachment() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt'],
-      );
-
-      if (result != null && result.files.isNotEmpty && widget.onFileSelected != null) {
-        widget.onFileSelected!(result.files.first);
-      }
-    } catch (e) {
-      debugPrint('Error picking file: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -70,14 +52,6 @@ class _ChatInputState extends State<ChatInput> {
       child: SafeArea(
         child: Row(
           children: [
-            IconButton(
-              onPressed: _handleAttachment,
-              icon: Icon(
-                Icons.attach_file_rounded,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              tooltip: 'Attach file',
-            ),
             Expanded(
               child: TextField(
                 controller: _controller,
@@ -110,11 +84,9 @@ class _ChatInputState extends State<ChatInput> {
             ),
             const SizedBox(width: 8),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: _canSend 
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey[300],
+                color: Colors.deepPurple,
               ),
               child: Material(
                 type: MaterialType.transparency,

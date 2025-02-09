@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/message.dart';
 
@@ -74,19 +73,6 @@ class ChatBubble extends StatelessWidget {
                   ],
                   MarkdownBody(
                     data: message.content,
-                    selectable: true,
-                    builders: {
-                      'code': CodeElementBuilder(
-                        textStyle: TextStyle(
-                          backgroundColor: isUser 
-                              ? theme.colorScheme.primaryContainer.withOpacity(0.3)
-                              : theme.colorScheme.primaryContainer,
-                          color: isUser ? Colors.white : theme.colorScheme.onSurface,
-                          fontSize: 14,
-                          fontFamily: 'monospace',
-                        ),
-                      ),
-                    },
                     styleSheet: MarkdownStyleSheet(
                       p: TextStyle(
                         color: isUser ? Colors.white : theme.textTheme.bodyLarge?.color,
@@ -98,7 +84,6 @@ class ChatBubble extends StatelessWidget {
                             : theme.colorScheme.primaryContainer,
                         color: isUser ? Colors.white : theme.colorScheme.onSurface,
                         fontSize: 14,
-                        fontFamily: 'monospace',
                       ),
                       codeblockDecoration: BoxDecoration(
                         color: isUser 
@@ -144,56 +129,6 @@ class ChatBubble extends StatelessWidget {
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class CodeElementBuilder extends MarkdownElementBuilder {
-  final TextStyle? textStyle;
-
-  CodeElementBuilder({this.textStyle});
-
-  @override
-  Widget? visitElementAfter(Element element, TextStyle? preferredStyle) {
-    String text = element.textContent;
-    return GestureDetector(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: text));
-      },
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 8, bottom: 8),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: textStyle?.backgroundColor,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SelectableText(
-                    text,
-                    style: textStyle,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 8,
-            right: 8,
-            child: IconButton(
-              icon: const Icon(Icons.copy, size: 18),
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: text));
-              },
-              tooltip: 'Copy code',
-            ),
-          ),
         ],
       ),
     );
