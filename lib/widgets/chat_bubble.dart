@@ -1,108 +1,199 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../models/chat_message.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import '../models/message.dart';
 
 class ChatBubble extends StatelessWidget {
-  final ChatMessage message;
+  final Message message;
 
-  const ChatBubble({super.key, required this.message});
+  const ChatBubble({
+    super.key,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isUser = message.isUser;
-    final timeString = DateFormat('HH:mm').format(message.timestamp);
-
+    final theme = Theme.of(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
             CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.deepPurple[100],
-              child: const Icon(Icons.smart_toy_outlined,
-                  size: 18, color: Colors.deepPurple),
+              backgroundColor: theme.colorScheme.primaryContainer,
+              radius: 20,
+              child: Icon(
+                Icons.smart_toy_outlined,
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
           ],
           Flexible(
             child: Container(
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.75,
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isUser
-                    ? Colors.deepPurple
-                    : Colors.white,
+                color: isUser 
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.surface,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isUser ? 16 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 16),
+                  topLeft: const Radius.circular(20),
+                  topRight: const Radius.circular(20),
+                  bottomLeft: Radius.circular(isUser ? 20 : 5),
+                  bottomRight: Radius.circular(isUser ? 5 : 20),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(red: 0, green: 0, blue: 0, alpha: 8),
-                    blurRadius: 3,
-                    offset: const Offset(0, 1),
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: Column(
-                crossAxisAlignment:
-                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message.message,
-                    style: TextStyle(
-                      color: isUser ? Colors.white : Colors.black87,
-                      fontSize: 15,
-                      height: 1.4,
+                  if (!isUser) ...[
+                    Text(
+                      'PocketLLM',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        timeString,
-                        style: TextStyle(
-                          color: isUser
-                              ? Colors.white.withValues(red: 255, green: 255, blue: 255, alpha: 179)
-                              : Colors.black45,
-                          fontSize: 11,
+                    const SizedBox(height: 4),
+                  ],
+                  MarkdownBody(
+                    data: message.content,
+                    selectable: true,
+                    builders: {
+                      'code': CodeElementBuilder(
+                        textStyle: TextStyle(
+                          backgroundColor: isUser 
+                              ? theme.colorScheme.primaryContainer.withOpacity(0.3)
+                              : theme.colorScheme.primaryContainer,
+                          color: isUser ? Colors.white : theme.colorScheme.onSurface,
+                          fontSize: 14,
+                          fontFamily: 'monospace',
                         ),
                       ),
-                      if (isUser) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.done_all,
-                          size: 13,
-                          color: Colors.white.withValues(red: 255, green: 255, blue: 255, alpha: 179),
-                        ),
-                      ],
-                    ],
+                    },
+                    styleSheet: MarkdownStyleSheet(
+                      p: TextStyle(
+                        color: isUser ? Colors.white : theme.textTheme.bodyLarge?.color,
+                        fontSize: 15,
+                      ),
+                      code: TextStyle(
+                        backgroundColor: isUser 
+                            ? theme.colorScheme.primaryContainer.withOpacity(0.3)
+                            : theme.colorScheme.primaryContainer,
+                        color: isUser ? Colors.white : theme.colorScheme.onSurface,
+                        fontSize: 14,
+                        fontFamily: 'monospace',
+                      ),
+                      codeblockDecoration: BoxDecoration(
+                        color: isUser 
+                            ? theme.colorScheme.primaryContainer.withOpacity(0.3)
+                            : theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      blockquote: TextStyle(
+                        color: isUser ? Colors.white70 : Colors.grey[600],
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      h1: TextStyle(
+                        color: isUser ? Colors.white : theme.textTheme.headlineMedium?.color,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      h2: TextStyle(
+                        color: isUser ? Colors.white : theme.textTheme.headlineSmall?.color,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      h3: TextStyle(
+                        color: isUser ? Colors.white : theme.textTheme.titleLarge?.color,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
           if (isUser) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.deepPurple[100],
-              child: const Icon(Icons.person_outline,
-                  size: 18, color: Colors.deepPurple),
+              backgroundColor: theme.colorScheme.primaryContainer,
+              radius: 20,
+              child: Icon(
+                Icons.person_outline,
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class CodeElementBuilder extends MarkdownElementBuilder {
+  final TextStyle? textStyle;
+
+  CodeElementBuilder({this.textStyle});
+
+  @override
+  Widget? visitElementAfter(Element element, TextStyle? preferredStyle) {
+    String text = element.textContent;
+    return GestureDetector(
+      onTap: () {
+        Clipboard.setData(ClipboardData(text: text));
+      },
+      child: Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8, bottom: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: textStyle?.backgroundColor,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: SelectableText(
+                    text,
+                    style: textStyle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: IconButton(
+              icon: const Icon(Icons.copy, size: 18),
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: text));
+              },
+              tooltip: 'Copy code',
+            ),
+          ),
         ],
       ),
     );

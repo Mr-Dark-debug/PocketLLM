@@ -5,6 +5,7 @@ import '../widgets/chat_bubble.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/settings_dialog.dart';
 import '../models/provider_settings.dart';
+import '../models/message.dart';
 
 class ChatScreen extends StatefulWidget {
   final String initialApiKey;

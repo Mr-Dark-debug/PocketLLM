@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/chat_message.dart';
+import '../models/message.dart';
 import '../models/provider_settings.dart';
 import '../services/api_service.dart';
 
 class ChatProvider extends ChangeNotifier {
-  final List<ChatMessage> _messages = [];
+  final List<Message> _messages = [];
   late ApiService _apiService;
   bool _isLoading = false;
   ProviderSettings? _settings;
@@ -20,7 +20,7 @@ class ChatProvider extends ChangeNotifier {
     );
   }
 
-  List<ChatMessage> get messages => List.unmodifiable(_messages);
+  List<Message> get messages => List.unmodifiable(_messages);
   bool get isLoading => _isLoading;
 
   void updateSettings({
@@ -39,8 +39,8 @@ class ChatProvider extends ChangeNotifier {
     if (message.trim().isEmpty) return;
 
     // Add user message
-    _messages.add(ChatMessage(
-      message: message,
+    _messages.add(Message(
+      content: message,
       isUser: true,
     ));
     notifyListeners();
@@ -52,13 +52,13 @@ class ChatProvider extends ChangeNotifier {
       // Get AI response
       final response = await _apiService.getChatCompletion(message);
       
-      _messages.add(ChatMessage(
-        message: response,
+      _messages.add(Message(
+        content: response,
         isUser: false,
       ));
     } catch (e) {
-      _messages.add(ChatMessage(
-        message: 'Error: Failed to get response. Please try again.',
+      _messages.add(Message(
+        content: 'Error: Failed to get response. Please try again.',
         isUser: false,
       ));
     } finally {
